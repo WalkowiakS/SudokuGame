@@ -1,14 +1,16 @@
-# class for working with regular sudoku boards (normal rows, columns, and blocks)
-# -board size must be a perfect square
+# classes for working with regular sudoku boards (normal rows, columns, and blocks)
+# SolveBoard and CreateBoard classes
 from math import sqrt
+import random
 
 
-class Board:
-    def __init__(self, board, size):
+class SolveBoard:
+    # -board size must be a perfect square
+    def __init__(self, board):
         self.board = board  # board that will be modified
         self.orig = board  # reference board
-        self.size = size  # width and height of board
-        self.block_size = int(sqrt(size))  # size of board sections
+        self.size = int(sqrt(len(board)))  # width and height of board
+        self.block_size = int(sqrt(self.size))  # size of board sections
 
     def print_board(self):
         # prints board in neat rows
@@ -25,6 +27,9 @@ class Board:
             count += 1
 
     def get_sections(self, pos):
+        # gets row, column, and block that pos is a part of
+        # returns them as 3 lists
+
         # get row that contains number at pos~~~~~~~~~~~~~~~~~~~~~~~~~~
         row_num = pos // self.size
         beginning = row_num * self.size
@@ -80,14 +85,16 @@ class Board:
                 solved = False
         return solved
 
-    def solve(self, pos):
+    def solve(self, pos=0):
+        # solves board using backtracking
+
         # last position checked, board is solved
         if self.is_solved():
             return True
 
         # number is from original board, do not change
         if self.orig[pos] != 0:
-            return self.solve(pos+1)
+            return self.solve(pos + 1)
 
         # unassigned space, try to insert values
         for num in range(1, self.size + 1):
@@ -97,7 +104,7 @@ class Board:
                 self.board[pos] = num
 
                 # try solving rest of puzzle with that num in pos
-                if self.solve(pos+1):
+                if self.solve(pos + 1):
                     return True
 
                 # solution has failed, undo assignment
@@ -105,3 +112,96 @@ class Board:
 
         # backtrack and start new path
         return False
+
+
+class CreateBoard:
+    file_name = "SeedBoards.txt"  # file that contains seed boards
+
+    # all boards in the file begin with two digits that represent the board size
+    # next is a character that represents the difficulty
+    # followed by numbers that are in the actual board
+    # ex: 09E00078000... (this is a size 9x9 board with a difficulty of easy
+
+    def __init__(self, difficulty, size):
+        self.level = difficulty
+        self.size = size
+        self.board = self.get_seed()
+
+    def get_seed(self):
+        with open(self.file_name, 'r') as reader:
+            text = reader.readlines()
+
+        # make list with all boards that meet the size and difficulty criteria
+        board_list = []
+        for line in text:
+            line = line.strip()
+            if int(line[0:2]) == self.size and line[2:3] == self.level:
+                board_list += [line[3:]]
+
+        # choose random board from list
+        board = list(random.choice(board_list))
+
+        # convert board elements to ints
+        board = [int(i) for i in board]
+
+        return board
+
+    def create_board(self):
+        # Takes a seed board and transforms it so the user won't be able to recognize it
+        # Randomizes numbers, rotates a random amount and flips a random amount
+
+        # randomize numbers~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # create list of possible numbers for board size and shuffle
+        nums = list(range(1, self.size + 1))
+        random.shuffle(nums)
+
+        # create dictionary that pairs number list with random number list
+        num_key = {0: 0}
+        for i in range(1, self.size + 1):
+            num_key.update({i: nums[i - 1]})
+
+        # replace numbers in board with the new numbers
+        temp = []
+        for i in self.board:
+            temp += [num_key.get(i)]
+
+        self.board = temp
+
+        # rotate board~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # 4 possible rotations, 0, 90, 180, 270
+        rotation = random.randint(0, 3)  # 0=0 degree, 1=90 degree, 2=180, 3=270
+
+        # slice board into columns, reverse numbers in column, create new board using columns as rows
+        # repeat until desired rotation
+        for i in range(0, rotation):
+            columns = []
+            for j in range(0, self.size):
+                col = self.board[j:: self.size]
+                col.reverse()
+                columns += [col]
+            # re-make board with reversed columns
+            self.board = []
+            for k in range(0, self.size):
+                self.board += columns[k]
+
+        # flip horizontally, vertically, or both ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        flip = random.randint(0, 3)  # 0= flip both ways, 1= horizontal, 2= vertical, 3= no flip
+
+        # Horizontal flip
+        if flip == 0 or flip == 1:
+            temp = []
+            # reverse each row
+            for i in range(0, self.size):
+                temp += reversed(self.board[(i * self.size):((i + 1) * self.size)])
+            self.board = temp
+
+        # vertical flip
+        if flip == 0 or flip == 2:
+            temp = []
+            # reverse order of rows
+            for i in reversed(range(0, self.size)):
+                temp += self.board[(i * self.size):((i + 1) * self.size)]
+
+            self.board = temp
+
+
