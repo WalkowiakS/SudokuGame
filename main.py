@@ -1,10 +1,10 @@
 from board import *
+from game import *
 
 if __name__ == '__main__':
     board = CreateBoard('E', 9)
     board.create_board()
-    print("solve")
+    board = board.board
 
-    test_board = SolveBoard(board.board)
-    test_board.solve()
-    test_board.print_board()
+    g = Game(board, 9)
+    g.run_game()

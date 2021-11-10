@@ -12,20 +12,6 @@ class SolveBoard:
         self.size = int(sqrt(len(board)))  # width and height of board
         self.block_size = int(sqrt(self.size))  # size of board sections
 
-    def print_board(self):
-        # prints board in neat rows
-        text = ""
-        count = 1
-        for num in self.board:
-            text = text + "  " + str(num)
-            if count % self.block_size == 0:
-                text += "|"
-            if count == self.size:
-                print(text)
-                text = ""
-                count = 0
-            count += 1
-
     def get_sections(self, pos):
         # gets row, column, and block that pos is a part of
         # returns them as 3 lists
@@ -48,7 +34,7 @@ class SolveBoard:
 
         # make list from numbers in block
         block = []
-        for i in range(0, self.block_size):
+        for i in range(self.block_size):
             block += self.board[start: (start + self.block_size)]
             start += self.size
 
@@ -115,7 +101,7 @@ class SolveBoard:
 
 
 class CreateBoard:
-    file_name = "SeedBoards.txt"  # file that contains seed boards
+    FILE_NAME = "SeedBoards.txt"  # file that contains seed boards
 
     # all boards in the file begin with two digits that represent the board size
     # next is a character that represents the difficulty
@@ -128,7 +114,7 @@ class CreateBoard:
         self.board = self.get_seed()
 
     def get_seed(self):
-        with open(self.file_name, 'r') as reader:
+        with open(self.FILE_NAME, 'r') as reader:
             text = reader.readlines()
 
         # make list with all boards that meet the size and difficulty criteria
@@ -173,15 +159,15 @@ class CreateBoard:
 
         # slice board into columns, reverse numbers in column, create new board using columns as rows
         # repeat until desired rotation
-        for i in range(0, rotation):
+        for i in range(rotation):
             columns = []
-            for j in range(0, self.size):
+            for j in range( self.size):
                 col = self.board[j:: self.size]
                 col.reverse()
                 columns += [col]
             # re-make board with reversed columns
             self.board = []
-            for k in range(0, self.size):
+            for k in range(self.size):
                 self.board += columns[k]
 
         # flip horizontally, vertically, or both ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -191,7 +177,7 @@ class CreateBoard:
         if flip == 0 or flip == 1:
             temp = []
             # reverse each row
-            for i in range(0, self.size):
+            for i in range(self.size):
                 temp += reversed(self.board[(i * self.size):((i + 1) * self.size)])
             self.board = temp
 
@@ -199,9 +185,9 @@ class CreateBoard:
         if flip == 0 or flip == 2:
             temp = []
             # reverse order of rows
-            for i in reversed(range(0, self.size)):
+            for i in reversed(range(self.size)):
                 temp += self.board[(i * self.size):((i + 1) * self.size)]
 
             self.board = temp
 
-
+        # ADD ROW AND COL SWAPPING
