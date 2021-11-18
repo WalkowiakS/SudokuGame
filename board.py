@@ -73,7 +73,6 @@ class SolveBoard:
 
     def solve(self, pos=0):
         # solves board using backtracking
-
         # last position checked, board is solved
         if self.is_solved():
             return True
@@ -161,14 +160,12 @@ class CreateBoard:
         # repeat until desired rotation
         for i in range(rotation):
             columns = []
-            for j in range( self.size):
+            for j in range(self.size):
                 col = self.board[j:: self.size]
                 col.reverse()
                 columns += [col]
             # re-make board with reversed columns
-            self.board = []
-            for k in range(self.size):
-                self.board += columns[k]
+            self.board = [x for col in columns for x in col]
 
         # flip horizontally, vertically, or both ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         flip = random.randint(0, 3)  # 0= flip both ways, 1= horizontal, 2= vertical, 3= no flip
@@ -187,7 +184,37 @@ class CreateBoard:
             # reverse order of rows
             for i in reversed(range(self.size)):
                 temp += self.board[(i * self.size):((i + 1) * self.size)]
-
             self.board = temp
 
-        # ADD ROW AND COL SWAPPING
+        # Row swapping and column swapping~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # randomize rows or columns that belong to the same block.
+        # Keeps board integrity while changing layout
+        block_size = int(sqrt(self.size))
+
+        # get rows
+        temp = []
+        for i in range(block_size):
+            block_rows = []
+            offset = i * block_size * self.size
+
+            for j in range(block_size):
+                block_rows += [self.board[j * self.size + offset: j * self.size + self.size + offset]]
+
+            # randomize rows and add to new list
+            random.shuffle(block_rows)
+            temp += [x for row in block_rows for x in row]
+
+        self.board = temp
+
+        # TODO fix shuffle columns
+        # get columns
+        temp = []
+        block_cols = []
+        for i in range(self.size):
+            block_cols += [self.board[(i * self.size):((i + 1) * self.size)]]
+            if (i + 1) % block_size == 0:
+                random.shuffle(block_cols)
+                temp += [x for col in block_cols for x in col]
+                block_cols = []
+
+        self.board = temp
