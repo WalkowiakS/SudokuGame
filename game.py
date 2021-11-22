@@ -11,8 +11,9 @@ class Game:
     # colors
     LINE_THICK = (194, 146, 80)
     LINE_THIN = (194, 146, 80)
-    HIGHLIGHT = (44,100,115)
-    HIGHLIGHT2 = (113, 120, 148)
+    HIGHLIGHT = (44, 100, 115)
+    HIGHLIGHT2 = (23, 28, 53)
+    HIGHLIGHT3 = (35, 38, 65)
     BACK_COLOR = (51,56,78)
     ORIG_NUMS = (177,124,115)
     NUMS = (206,189,163)
@@ -79,15 +80,15 @@ class Game:
     def create_buttons(self):
         button_list = []
         #new game
-        btn_new_game = Button(self.screen, "New Game", (300, 750), 30)
+        btn_new_game = Button(self.screen, "New Game", (275, 750), 35)
         button_list.append(btn_new_game)
 
         #reset board
-        btn_reset = Button(self.screen, "Reset", (300, 850), 20)
+        btn_reset = Button(self.screen, "Reset", (365, 850), 25)
         button_list.append(btn_reset)
 
         #solve board
-        btn_solve = Button(self.screen, "Solve", (200, 850), 20)
+        btn_solve = Button(self.screen, "Solve", (270, 850), 25)
         button_list.append(btn_solve)
 
         return button_list
@@ -116,13 +117,29 @@ class Game:
             return True
 
     def highlight(self):
-        # TODO add highlight to row and col that box is in
-        # highlight the currently selected box
-        pg.draw.rect(self.screen, self.HIGHLIGHT, (self.pos[0]*self.box_size,
-                                                   self.pos[1]*self.box_size,
-                                                   self.box_size,self.box_size))
+        # highlight row and col
+        for i in range(0, self.size):
+            pg.draw.rect(self.screen, self.HIGHLIGHT3, (self.pos[0] * self.box_size,
+                                                        i * self.box_size,
+                                                        self.box_size, self.box_size))
+            pg.draw.rect(self.screen, self.HIGHLIGHT3, (i * self.box_size,
+                                                        self.pos[1] * self.box_size,
+                                                        self.box_size, self.box_size))
 
-        #highlight row and col
+        # highlight all nums that are the same
+        num = self.board[(self.pos[0] + self.pos[1] * self.size)]
+        for i in range(self.size * self.size):
+            y = i // self.size
+            x = i - (y * self.size)
+            if num != 0 and num == self.board[i]:
+                pg.draw.rect(self.screen, self.HIGHLIGHT2, (x * self.box_size,
+                                                            y * self.box_size,
+                                                            self.box_size, self.box_size))
+
+            # highlight the currently selected box
+            pg.draw.rect(self.screen, self.HIGHLIGHT, (self.pos[0] * self.box_size,
+                                                       self.pos[1] * self.box_size,
+                                                       self.box_size, self.box_size))
 
 
     def input_num(self, num):
@@ -136,7 +153,6 @@ class Game:
             index = self.pos[0] + (self.pos[1]*self.size)
             self.board[index] = num
 
-    # TODO check solution
 
 
     def display_solution(self):

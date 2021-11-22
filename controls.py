@@ -9,7 +9,8 @@ class Button:
     TEXT = (51,56,78)
 
     OUTLINE_WIDTH = 4
-    PADDING = .25    # used to calc space between button edge and button text
+    PADDING_W = .75    # used to calc space between button edge and button text
+    PADDING_H = .25
 
     def __init__(self, screen,text, pos, font_size):
         self.screen = screen
@@ -26,12 +27,12 @@ class Button:
         # font settings
         # TODO adjust button size by text size
         font = pg.font.Font("Ardeco.ttf", self.font_size)
+        size = pg.font.Font.size(font, self.text)  # get size of string in selected font
         text = font.render(self.text, True, self.TEXT)
 
         # get and set button size based on text string length and height
-        size = pg.font.Font.size(font, str(text))   # get size of string in selected font
-        self.width = size[0]//2
-        self.height = size[1] + (size[1] * self.PADDING)
+        self.width = size[0]+ (size[1] * self.PADDING_W)
+        self.height = size[1] + (size[1] * self.PADDING_H)
         self.back.update(self.pos[0], self.pos[1], self.width, self.height)
 
         # draw button shape
@@ -59,8 +60,8 @@ class Button:
 
         # draw text
         text_pos = [0,0]
-        # text_pos[0] = self.pos[0] + (self.width - size[0])//2
-        text_pos[0] = self.pos[0] + (self.width - (size[0]//2))//2
+        # text_pos[0] = self.pos[0] + (self.width - (size[0]//2))
+        text_pos[0] = self.pos[0] + ((self.width - size[0])//2)
         text_pos[1] = self.pos[1] + (self.height - size[1])//2
         self.screen.blit(text, text_pos)
 
